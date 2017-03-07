@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="jasmineResults">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Title</title>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/angular-material/1.1.3/angular-material.min.css">
+    <style>
+        .status {
+            width: 85px;
+            padding: 7px;
+            border-radius: 3px;
+            text-align: center;
+        }
+
+        .failed .status {
+            background-color: rgb(255, 87, 34);
+        }
+
+        .passed .status {
+            background-color: rgb(76, 175, 80);
+        }
+
+        .pending .status {
+            background-color: rgb(255, 255, 0);
+        }
+    </style>
+</head>
+<body ng-controller="ResultsCtrl">
+
+<div ng-cloak layout="column">
+    <md-toolbar ng-class="{'md-warn': results.counts.failed}">
+        <div class="md-toolbar-tools">
+            <h2 flex md-truncate>Results <small ng-if="runTime"> - executed in {{runTime / 1000}} seconds</small></h2>
+            <h6>
+                <span ng-if="results.counts.passed">Passed: {{results.counts.passed}}</span>
+                <br ng-if="results.counts.passed" />
+
+                <span ng-if="results.counts.pending">Pending: {{results.counts.pending}}</span>
+                <br ng-if="results.counts.pending" />
+
+                <span ng-if="results.counts.failed">Failed: {{results.counts.failed}}</span>
+            </h6>
+        </div>
+    </md-toolbar>
+    <md-content flex>
+        <md-list>
+            <md-list-item ng-class="result.status" ng-repeat="result in results.sequence" ng-click="showDetail(result)">
+                <div layout="row" flex layout-padding>
+                    <div flex="none">
+                        <div class="status">{{result.status}}</div>
+                    </div>
+                    <div flex>
+                        <span>{{result.prefix}}</span><strong>{{result.description}}</strong>
+                        <div ng-if="result.pendingReason != ''">
+                            <small>{{result.pendingReason}}</small>
+                        </div>
+                        <div ng-repeat="failure in result.failedExpectations">
+                            <small>{{failure.message}}</small>
+                        </div>
+                        <div ng-if="result.suspectLine">
+                            <small>{{result.suspectLine}}</small>
+                        </div>
+                    </div>
+                    <div flex="none" style="width: 80px; text-align:right;">
+                        <small>{{result.duration / 1000}} s</small>
+                    </div>
+                    <div flex="none" style="width: 150px">
+                        <img width="100%" ng-if="result.status == 'failed'" ng-src="{{result.screenshotPath}}" />
+                    </div>
+                </div>
+                <md-divider inset></md-divider>
+            </md-list-item>
+        </md-list>
+    </md-content>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-messages.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-material/1.1.3/angular-material.js"></script>
+
+<script>
+    angular.module('jasmineResults', ['ngMaterial']).config(function ($mdThemingProvider) {
+        $mdThemingProvider.theme('default').primaryPalette('green').accentPalette('yellow');
+    }).controller('ResultsCtrl', function ($scope, $mdDialog, results) {
+
+        var classes = {
+            'passed': 'md-primary',
+            'pending': 'md-accent',
+            'failed': 'md-warn'
+        };
+
+        $scope.showDetail = function (item) {
+            $scope.activeItem = item;
+            $mdDialog.show({
+                controller: function () {
+                },
+                scope: $scope.$new(false, $scope),
+                templateUrl: 'dialog.html',
+                parent: angular.element(document.body),
+                clickOutsideToClose: true
+            })
+        };
+
+        $scope.results = results;
+        $scope.runTime = new Date(results.timer.jasmineDone) - new Date(results.timer.jasmineStart);
+
+        //transform results
+        $scope.results.sequence.forEach(function (item) {
+            item.prefix = item.fullName.replace(item.description, '');
+            item.duration = new Date(item.stoped) - new Date(item.started);
+            item.cssClass = classes[item.status];
+            if (item.status === 'failed') {
+                item.failedExpectations[0].stack.split('\n').some(function (line) {
+                    var match = line.indexOf('Error:') === -1 && line.indexOf('node_modules') === -1;
+
+                    if (match) {
+                        item.suspectLine = line;
+                    }
+
+                    return match;
+                })
+            }
+        });
+    }).constant('results', '<Results Replacement>');
+</script>
+
+<script type="text/ng-template" id="dialog.html">
+    <md-dialog aria-label="" flex="90">
+        <md-toolbar ng-class="activeItem.cssClass">
+            <div class="md-toolbar-tools">Test Information</div>
+        </md-toolbar>
+        <md-dialog-content>
+            <md-content>
+                <img width="100%" ng-src="{{activeItem.screenshotPath}}">
+                <md-subheader ng-if="activeItem.failedExpectations.length > 0">Stack Traces</md-subheader>
+                <div flex layout="column" layout-padding ng-repeat="failure in activeItem.failedExpectations">
+                    <div flex>
+                        <p>{{failure.message}}</p>
+                        <small>
+                            <pre>{{failure.stack}}</pre>
+                        </small>
+                    </div>
+                </div>
+            </md-content>
+            <md-subheader ng-if="activeItem.passedExpectations.length > 0">Passed Expectations</md-subheader>
+            <pre ng-repeat="pass in activeItem.passedExpectations">{{pass | json}}</pre>
+        </md-dialog-content>
+    </md-dialog>
+</script>
+
+</body>
+</html>

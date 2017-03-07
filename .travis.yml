@@ -1,0 +1,26 @@
+language: node_js
+node_js:
+  - "node"
+branches:
+  only:
+    - master
+git:
+  branch: master
+before_script:
+  - git config --global user.email "builds@travis-ci.com"
+  - git config --global user.name "Travis CI"
+  - git checkout master
+script:
+  - npm version patch -m "[CHORE] Bump Version %s [skip ci]"
+before_deploy:
+  - git push https://$GITHUB_TOKEN@github.com/stuisme/protractor-pretty-html-reporter master
+  - git push https://$GITHUB_TOKEN@github.com/stuisme/protractor-pretty-html-reporter --tags
+  - ls -R
+deploy:
+  provider: npm
+  email: $NPM_EMAIL
+  api_key: $NPM_TOKEN
+  on:
+    tags: false
+    branches:
+      - master

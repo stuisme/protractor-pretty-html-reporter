@@ -1,0 +1,25 @@
+{
+  "name": "protractor-pretty-html-reporter",
+  "description": "an easy to use html page for looking at protractor test results",
+  "author": "stuisme",
+  "main": "index.js",
+  "version": "0.0.0",
+  "keywords": [
+    "jasmine",
+    "protractor",
+    "pretty",
+    "html",
+    "reporter"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stuisme/protractor-pretty-html-reporter.git"
+  },
+  "issues": {
+    "url": "https://github.com/stuisme/protractor-pretty-html-reporter/issues"
+  },
+  "peerDependencies": {
+    "jasmine": "^2.4.1"
+  },
+  "license": "MIT"
+}
