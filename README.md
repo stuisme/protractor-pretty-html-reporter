@@ -16,8 +16,19 @@ protractor.conf
 var PrettyReporter = require('protractor-pretty-html-reporter').Reporter;
 
 var prettyReporter = new PrettyReporter({
-    path: path.join(__dirname, 'results'), // required
-    screenshotOnPassed: true    // defaults to false
+
+    // required, there is no default
+    path: path.join(__dirname, 'results'),
+
+    // includes browser icon in the output
+    // defaults to true
+    showBrowser: true,
+
+    // includes screen shots for tests that pass
+    // failures are always included
+    // defaults to false
+    screenshotOnPassed: false
+
 });
 
 module.exports = {

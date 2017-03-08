@@ -29,6 +29,7 @@ class Reporter {
         Reporter.makeDirectoryIfNeeded(this.imageLocation);
 
         this.timer.jasmineStart = Reporter.nowString();
+        let browserName = '';
 
         afterEach((next) => {
             this.currentSpec.stoped = Reporter.nowString();
@@ -39,7 +40,7 @@ class Reporter {
                 })
                 .then(browser.getCapabilities)
                 .then((capabilities) => {
-                    this.currentSpec.capabilities = capabilities;
+                    this.currentSpec.browserName = capabilities.get('browserName');
                 })
                 .then(next, next);
         });
@@ -62,7 +63,6 @@ class Reporter {
         if (this.currentSpec.status !== 'passed' || this.options.screenshotOnPassed) {
             this.currentSpec.screenshotPath = 'img/' + this.counts.specs + '.png';
             this.writeImage(this.currentSpec.base64screenshot);
-
         }
 
         // remove this from the payload that is written to report.html;
@@ -85,6 +85,7 @@ class Reporter {
 
     writeFile() {
         let logEntry = {
+            options: this.options,
             timer: this.timer,
             counts: this.counts,
             sequence: this.sequence
@@ -102,7 +103,8 @@ class Reporter {
 
     static getDefaultOptions() {
         return {
-            screenshotOnPassed: false
+            screenshotOnPassed: false,
+            showBrowser: true
         };
     }
 
