@@ -35,10 +35,10 @@
             <h2 flex md-truncate>Results <small ng-if="runTime"> - executed in {{runTime / 1000}} seconds</small></h2>
             <h6>
                 <span ng-if="results.counts.passed">Passed: {{results.counts.passed}}</span>
-                <br ng-if="results.counts.passed" />
+                <br ng-if="results.counts.passed"/>
 
                 <span ng-if="results.counts.pending">Pending: {{results.counts.pending}}</span>
-                <br ng-if="results.counts.pending" />
+                <br ng-if="results.counts.pending"/>
 
                 <span ng-if="results.counts.failed">Failed: {{results.counts.failed}}</span>
             </h6>
@@ -52,22 +52,22 @@
                         <div class="status">{{result.status}}</div>
                     </div>
                     <div flex>
-                        <span>{{result.prefix}}</span><strong>{{result.description}}</strong>
+                        <span>{{getPrefix(result)}}</span><strong>{{result.description}}</strong>
                         <div ng-if="result.pendingReason != ''">
                             <small>{{result.pendingReason}}</small>
                         </div>
                         <div ng-repeat="failure in result.failedExpectations">
                             <small>{{failure.message}}</small>
                         </div>
-                        <div ng-if="result.suspectLine">
-                            <small>{{result.suspectLine}}</small>
-                        </div>
+                        <!--<div ng-if="result.suspectLine">-->
+                        <!--<small>{{result.suspectLine}}</small>-->
+                        <!--</div>-->
                     </div>
                     <div flex="none" style="width: 80px; text-align:right;">
-                        <small>{{result.duration / 1000}} s</small>
+                        <small>{{getDuration(result) / 1000}} s</small>
                     </div>
                     <div flex="none" style="width: 150px">
-                        <img width="100%" ng-if="result.status == 'failed'" ng-src="{{result.screenshotPath}}" />
+                        <img width="100%" ng-if="result.screenshotPath" ng-src="{{result.screenshotPath}}"/>
                     </div>
                 </div>
                 <md-divider inset></md-divider>
@@ -106,31 +106,27 @@
         };
 
         $scope.results = results;
+
         $scope.runTime = new Date(results.timer.jasmineDone) - new Date(results.timer.jasmineStart);
 
-        //transform results
-        $scope.results.sequence.forEach(function (item) {
-            item.prefix = item.fullName.replace(item.description, '');
-            item.duration = new Date(item.stoped) - new Date(item.started);
-            item.cssClass = classes[item.status];
-            if (item.status === 'failed') {
-                item.failedExpectations[0].stack.split('\n').some(function (line) {
-                    var match = line.indexOf('Error:') === -1 && line.indexOf('node_modules') === -1;
+        $scope.getDuration = function (item) {
+            return new Date(item.stoped) - new Date(item.started);
+        };
 
-                    if (match) {
-                        item.suspectLine = line;
-                    }
+        $scope.getCss = function (item) {
+            return classes[item.status];
+        };
 
-                    return match;
-                })
-            }
-        });
+        $scope.getPrefix = function (item) {
+            return item.fullName.replace(item.description, '');
+        };
+
     }).constant('results', '<Results Replacement>');
 </script>
 
 <script type="text/ng-template" id="dialog.html">
     <md-dialog aria-label="" flex="90">
-        <md-toolbar ng-class="activeItem.cssClass">
+        <md-toolbar ng-class="getCss(activeItem)">
             <div class="md-toolbar-tools">Test Information</div>
         </md-toolbar>
         <md-dialog-content>

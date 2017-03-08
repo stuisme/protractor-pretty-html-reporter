@@ -8,3 +8,22 @@
 npm i protractor-pretty-html-reporter --save-dev
 ```
 _NOTE: jasmine is set as a peer dependency_
+
+### Basic Setup
+
+protractor.conf
+```
+var PrettyReporter = require('protractor-pretty-html-reporter').Reporter;
+
+var prettyReporter = new PrettyReporter({
+    path: path.join(__dirname, paths.e2e, 'results'), // required
+    screenshotOnPassed: true    // defaults to false
+});
+
+module.exports = {
+    /* rest of object omitted */
+    onPrepare: function() {
+        jasmine.getEnv().addReporter(prettyReporter);
+    }
+};
+```

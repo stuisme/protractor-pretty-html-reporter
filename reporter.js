@@ -9,40 +9,37 @@ const fileContents = fs.readFileSync(templatePath).toString();
 
 
 class Reporter {
-
     constructor(options) {
-        this.options = options;
-        this._sequence = [];
-        this._counts = {specs: 0};
-        this._timer = {};
-        this._currentSpec = null;
+        this.sequence = [];
+        this.counts = {specs: 0};
+        this.timer = {};
+        this.currentSpec = null;
 
-        this._imageLocation = path.join(this.options.path, 'img');
+        this.options = Reporter.getDefaultOptions();
+        this.setOptions(options);
 
-        Reporter.cleanDirectory(this.options.path);
-
-        Reporter.makeDirectoryIfNeeded(this.options.path);
-        Reporter.makeDirectoryIfNeeded(this._imageLocation);
-
+        this.imageLocation = path.join(this.options.path, 'img');
         this.destination = path.join(this.options.path, 'report.html');
     }
 
     jasmineStarted(suiteInfo) {
-        this._timer.jasmineStart = Reporter.nowString();
+        // clean up existing report
+        Reporter.cleanDirectory(this.options.path);
+        Reporter.makeDirectoryIfNeeded(this.options.path);
+        Reporter.makeDirectoryIfNeeded(this.imageLocation);
 
-        afterEach ((next) => {
-            this._currentSpec.stoped = Reporter.nowString();
+        this.timer.jasmineStart = Reporter.nowString();
 
-            let fileName = this._counts.specs + '.png';
-            this._currentSpec.screenshotPath = 'img/' + fileName;
+        afterEach((next) => {
+            this.currentSpec.stoped = Reporter.nowString();
 
             browser.takeScreenshot()
                 .then((png) => {
-                    this.writeImage(png);
+                    this.currentSpec.base64screenshot = png;
                 })
                 .then(browser.getCapabilities)
                 .then((capabilities) => {
-                    this._currentSpec.capabilities = capabilities;
+                    this.currentSpec.capabilities = capabilities;
                 })
                 .then(next, next);
         });
@@ -53,14 +50,24 @@ class Reporter {
     };
 
     specStarted(result) {
-        this._counts.specs++;
-        this._currentSpec = result;
-        this._currentSpec.started = Reporter.nowString();
+        this.counts.specs++;
+        this.currentSpec = result;
+        this.currentSpec.started = Reporter.nowString();
     };
 
     specDone(result) {
-        this._counts[this._currentSpec.status] = (this._counts[this._currentSpec.status] || 0) + 1;
-        this._sequence.push(this._currentSpec);
+        this.counts[this.currentSpec.status] = (this.counts[this.currentSpec.status] || 0) + 1;
+        this.sequence.push(this.currentSpec);
+
+        if (this.currentSpec.status !== 'passed' || this.options.screenshotOnPassed) {
+            this.currentSpec.screenshotPath = 'img/' + this.counts.specs + '.png';
+            this.writeImage(this.currentSpec.base64screenshot);
+
+        }
+
+        // remove this from the payload that is written to report.html;
+        delete this.currentSpec.base64screenshot;
+
         this.jasmineDone();
     };
 
@@ -68,37 +75,54 @@ class Reporter {
     };
 
     jasmineDone() {
-        this._timer.jasmineDone = Reporter.nowString();
+        this.timer.jasmineDone = Reporter.nowString();
         this.writeFile();
     };
 
-    writeFile(){
-      let logEntry = {
-        timer: this._timer,
-        counts: this._counts,
-        sequence: this._sequence
-      };
+    setOptions(options) {
+        this.options = Object.assign(this.options, options);
+    };
 
-      let results = fileContents.replace('\'<Results Replacement>\'', JSON.stringify(logEntry, null, 4));
-      fs.writeFileSync(this.destination, results, 'utf8');
+    writeFile() {
+        let logEntry = {
+            timer: this.timer,
+            counts: this.counts,
+            sequence: this.sequence
+        };
+
+        let results = fileContents.replace('\'<Results Replacement>\'', JSON.stringify(logEntry, null, 4));
+        fs.writeFileSync(this.destination, results, 'utf8');
     }
 
-    writeImage(img){
-        let stream = fs.createWriteStream(path.join(this.options.path, this._currentSpec.screenshotPath));
+    writeImage(img) {
+        let stream = fs.createWriteStream(path.join(this.options.path, this.currentSpec.screenshotPath));
         stream.write(new Buffer(img, 'base64'));
         stream.end();
     }
 
+    static getDefaultOptions() {
+        return {
+            screenshotOnPassed: false
+        };
+    }
+
     static cleanDirectory(dirPath) {
-        try { var files = fs.readdirSync(dirPath); }
-        catch(e) { return; }
+        let files = [];
+        try {
+            files = fs.readdirSync(dirPath);
+        }
+        catch (e) {
+            return;
+        }
         if (files.length > 0)
-            for (var i = 0; i < files.length; i++) {
-                var filePath = dirPath + '/' + files[i];
-                if (fs.statSync(filePath).isFile())
+            for (let i = 0; i < files.length; i++) {
+                let filePath = dirPath + '/' + files[i];
+
+                if (fs.statSync(filePath).isFile()) {
                     fs.unlinkSync(filePath);
-                else
+                } else {
                     Reporter.cleanDirectory(filePath);
+                }
             }
         fs.rmdirSync(dirPath);
     }
