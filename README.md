@@ -21,7 +21,7 @@ var prettyReporter = new PrettyReporter({
 });
 
 module.exports = {
-    /* rest of object omitted */
+    /* the rest of the object omitted */
     onPrepare: function() {
         jasmine.getEnv().addReporter(prettyReporter);
     }
