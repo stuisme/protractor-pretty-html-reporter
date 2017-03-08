@@ -16,7 +16,7 @@ protractor.conf
 var PrettyReporter = require('protractor-pretty-html-reporter').Reporter;
 
 var prettyReporter = new PrettyReporter({
-    path: path.join(__dirname, paths.e2e, 'results'), // required
+    path: path.join(__dirname, 'results'), // required
     screenshotOnPassed: true    // defaults to false
 });
 
