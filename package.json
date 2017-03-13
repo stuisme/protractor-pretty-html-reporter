@@ -3,7 +3,7 @@
   "description": "an easy to use html page for looking at protractor test results",
   "author": "stuisme",
   "main": "index.js",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "keywords": [
     "jasmine",
     "protractor",
