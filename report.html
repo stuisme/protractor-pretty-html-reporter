@@ -100,7 +100,17 @@
 <script type="text/ng-template" id="dialog.html">
     <md-dialog aria-label="" flex="90">
         <md-toolbar ng-class="getCss(activeItem)">
-            <div class="md-toolbar-tools">Test Information</div>
+            <div layout="row" layout-padding class="md-toolbar-tools">
+                <div flex="none">
+                    <h1>Test Information:</h1>
+                </div>
+                <div flex>
+                    <small>
+                        <span>{{ activeItem.prefix }}</span>
+                        <strong>{{ activeItem.description }}</strong>
+                    </small>
+                </div>
+            </div>
         </md-toolbar>
         <md-dialog-content>
             <md-content>
