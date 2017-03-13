@@ -4,6 +4,7 @@
 [![NPM Version](https://img.shields.io/npm/v/protractor-pretty-html-reporter.svg)](https://npmjs.org/package/protractor-pretty-html-reporter)
 [![NPM Monthly Downloads](https://img.shields.io/npm/dm/protractor-pretty-html-reporter.svg)](https://npmjs.org/package/protractor-pretty-html-reporter)
 
+
 ```
 npm i protractor-pretty-html-reporter --save-dev
 ```
@@ -17,6 +18,10 @@ _NOTE: jasmine is set as a peer dependency_
 - Long running test support, report can be refreshed during test runs (see options)
 - Suspect Line, best guess in the stack trace for your code (see options)
 - Screenshots (see options)
+
+![screen shot](/imgs/report.png)
+
+[More Screenshots](#more-screenshots)
 
 ### Basic Setup
 
@@ -46,3 +51,15 @@ module.exports = {
 | writeReportEachSpec   | Boolean | true    | writes the report.html after each spec completes, this is recommended for long running tests |
 | showBrowser           | Boolean | true    | shows browser icon on the overview                        |
 | highlightSuspectLine  | Boolean | true    | highlight the "suspect line" in the dialog            |
+
+
+## More Screenshots
+
+### Highlight the suspect line in your stacktrace
+![screen shot](/imgs/report-test-suspect-line.png)
+
+### Show a screen shot of the error page
+![screen shot](/imgs/report-with-screenshot.jpg)
+
+### Show console logs
+![screen shot](/imgs/report-with-console-logs.png)
