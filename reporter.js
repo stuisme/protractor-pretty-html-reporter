@@ -7,19 +7,31 @@ const path = require('path');
 const templatePath = path.join(__dirname, 'report.html');
 const fileContents = fs.readFileSync(templatePath).toString();
 
-
+/** A jasmine reporter that produces an html report **/
 class Reporter {
+
+    /**
+     * @constructor
+     * @param {object} options - The title of the book.
+     * @param {string} options.path - The author of the book.
+     */
     constructor(options) {
         this.sequence = [];
         this.counts = {specs: 0};
         this.timer = {};
         this.currentSpec = null;
+        this.browserLogs = [];
 
         this.options = Reporter.getDefaultOptions();
         this.setOptions(options);
 
+        if (!this.options.path) {
+            throw new Error('Please provide options.path')
+        }
+
         this.imageLocation = path.join(this.options.path, 'img');
         this.destination = path.join(this.options.path, 'report.html');
+
     }
 
     jasmineStarted(suiteInfo) {
@@ -28,11 +40,12 @@ class Reporter {
         Reporter.makeDirectoryIfNeeded(this.options.path);
         Reporter.makeDirectoryIfNeeded(this.imageLocation);
 
-        this.timer.jasmineStart = Reporter.nowString();
-        let browserName = '';
+        this.timer.started = Reporter.nowString();
 
         afterEach((next) => {
             this.currentSpec.stoped = Reporter.nowString();
+            this.currentSpec.duration = new Date(this.currentSpec.stoped) - new Date(this.currentSpec.started);
+            this.currentSpec.prefix = this.currentSpec.fullName.replace(this.currentSpec.description, '');
 
             browser.takeScreenshot()
                 .then((png) => {
@@ -41,10 +54,14 @@ class Reporter {
                 .then(browser.getCapabilities)
                 .then((capabilities) => {
                     this.currentSpec.browserName = capabilities.get('browserName');
+                    return browser.manage().logs().get('browser');
+                })
+                .then((browserLogs) => {
+                    this.currentSpec.browserLogs = browserLogs;
+                    this.browserLogs.concat(browserLogs);
                 })
                 .then(next, next);
         });
-
     };
 
     suiteStarted(result) {
@@ -60,6 +77,7 @@ class Reporter {
         this.counts[this.currentSpec.status] = (this.counts[this.currentSpec.status] || 0) + 1;
         this.sequence.push(this.currentSpec);
 
+        // Handle screenshot saving
         if (this.currentSpec.status !== 'passed' || this.options.screenshotOnPassed) {
             this.currentSpec.screenshotPath = 'img/' + this.counts.specs + '.png';
             this.writeImage(this.currentSpec.base64screenshot);
@@ -68,14 +86,30 @@ class Reporter {
         // remove this from the payload that is written to report.html;
         delete this.currentSpec.base64screenshot;
 
-        this.jasmineDone();
+        // suspectLine
+        result.failedExpectations.forEach(failure => {
+            failure.hasSuspectLine = failure.stack.split('\n').some(function (line) {
+                let match = line.indexOf('Error:') === -1 && line.indexOf('node_modules') === -1;
+
+                if (match) {
+                    failure.suspectLine = line;
+                }
+
+                return match;
+            });
+        });
+
+        if (this.options.writeReportEachSpec) {
+            this.jasmineDone();
+        }
     };
 
     suiteDone(result) {
     };
 
     jasmineDone() {
-        this.timer.jasmineDone = Reporter.nowString();
+        this.timer.stoped = Reporter.nowString();
+        this.timer.duration = new Date(this.timer.stoped) - new Date(this.timer.started);
         this.writeFile();
     };
 
@@ -104,7 +138,9 @@ class Reporter {
     static getDefaultOptions() {
         return {
             screenshotOnPassed: false,
-            showBrowser: true
+            writeReportEachSpec: true,
+            showBrowser: true,
+            highlightSuspectLine: true
         };
     }
 
