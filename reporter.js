@@ -12,8 +12,12 @@ class Reporter {
 
     /**
      * @constructor
-     * @param {object} options - The title of the book.
-     * @param {string} options.path - The author of the book.
+     * @param {Object} options - options for the reporter
+     * @param {String} options.path - Path the report.html will be written to
+     * @param {Boolean} options.screenshotOnPassed=false - take screenshots for passing tests too
+     * @param {Boolean} options.writeReportEachSpec=true - write the report between each spec, recommended for long running tests
+     * @param {Boolean} options.showBrowser=true - show browser icon on the overview
+     * @param {Boolean} options.highlightSuspectLine=true - highlight the "suspect line" in the detail dialog
      */
     constructor(options) {
         this.sequence = [];

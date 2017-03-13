@@ -44,5 +44,5 @@ module.exports = {
 | path                  | String  |         | path the report.html will be written to (required)    |
 | screenshotOnPassed    | Boolean | false   | take screenshots for passing tests too.               |
 | writeReportEachSpec   | Boolean | true    | writes the report.html after each spec completes, this is recommended for long running tests |
-| showBrowser           | Boolean | true    | shows browser icon on overview                        |
+| showBrowser           | Boolean | true    | shows browser icon on the overview                        |
 | highlightSuspectLine  | Boolean | true    | highlight the "suspect line" in the dialog            |
