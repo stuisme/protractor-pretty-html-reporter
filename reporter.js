@@ -82,7 +82,7 @@ class Reporter {
         this.sequence.push(this.currentSpec);
 
         // Handle screenshot saving
-        if (this.currentSpec.status !== 'passed' || this.options.screenshotOnPassed) {
+        if (this.currentSpec.status !== "disabled"  && (this.currentSpec.status !== 'passed' || this.options.screenshotOnPassed)) {
             this.currentSpec.screenshotPath = 'img/' + this.counts.specs + '.png';
             this.writeImage(this.currentSpec.base64screenshot);
         }

@@ -58,6 +58,10 @@
                 <br ng-if="results.counts.pending"/>
 
                 <span ng-if="results.counts.failed">Failed: {{ results.counts.failed }}</span>
+                <br ng-if="results.counts.failed"/>
+
+                <span ng-if="results.counts.disabled">Disabled: {{ results.counts.disabled }}</span>
+
             </h6>
         </div>
     </md-toolbar>
