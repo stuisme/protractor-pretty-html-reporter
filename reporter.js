@@ -47,8 +47,8 @@ class Reporter {
         this.timer.started = Reporter.nowString();
 
         afterEach((next) => {
-            this.currentSpec.stoped = Reporter.nowString();
-            this.currentSpec.duration = new Date(this.currentSpec.stoped) - new Date(this.currentSpec.started);
+            this.currentSpec.stopped = Reporter.nowString();
+            this.currentSpec.duration = new Date(this.currentSpec.stopped) - new Date(this.currentSpec.started);
             this.currentSpec.prefix = this.currentSpec.fullName.replace(this.currentSpec.description, '');
 
             browser.takeScreenshot()
@@ -82,7 +82,7 @@ class Reporter {
         this.sequence.push(this.currentSpec);
 
         // Handle screenshot saving
-        if (this.currentSpec.status !== "disabled"  && (this.currentSpec.status !== 'passed' || this.options.screenshotOnPassed)) {
+        if (this.currentSpec.status !== "disabled"  && this.currentSpec.status !== "pending"  && (this.currentSpec.status !== 'passed' || this.options.screenshotOnPassed)) {
             this.currentSpec.screenshotPath = 'img/' + this.counts.specs + '.png';
             this.writeImage(this.currentSpec.base64screenshot);
         }
@@ -112,8 +112,8 @@ class Reporter {
     };
 
     jasmineDone() {
-        this.timer.stoped = Reporter.nowString();
-        this.timer.duration = new Date(this.timer.stoped) - new Date(this.timer.started);
+        this.timer.stopped = Reporter.nowString();
+        this.timer.duration = new Date(this.timer.stopped) - new Date(this.timer.started);
         this.writeFile();
     };
 
