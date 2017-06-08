@@ -40,9 +40,9 @@ module.exports = {
     onPrepare: function() {
         jasmine.getEnv().addReporter(prettyReporter);
     },
-    /* if using sharding */
+    /* if using isSharded option see below */
     beforeLaunch() {
-        reporter.startReporter();
+        prettyReporter.startReporter();
     }
 };
 ```
