@@ -5,7 +5,7 @@ const path = require('path');
 
 //path setup
 const templatePath = path.join(__dirname, 'report.html');
-let fileContents = fs.readFileSync(templatePath).toString();
+const fileContents = fs.readFileSync(templatePath).toString();
 
 /** A jasmine reporter that produces an html report **/
 class Reporter {
