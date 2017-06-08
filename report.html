@@ -182,6 +182,10 @@
         };
 
         $scope.results = RESULTS.reduce(function(combined, result) {
+
+          combined.options = combined.options || result.options;
+          combined.timer = combined.timer || result.timer;
+
           combined.sequence = combined.sequence.concat(result.sequence);
 
           // sum the counts
@@ -191,8 +195,8 @@
 
           return combined;
         }, {
-          options: RESULTS[0].options,
-          timer: RESULTS[0].options,
+          options: null,
+          timer: null,
           counts: {},
           sequence: []
         });
