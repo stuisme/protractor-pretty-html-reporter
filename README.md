@@ -39,6 +39,10 @@ module.exports = {
     /* the rest of the object omitted */
     onPrepare: function() {
         jasmine.getEnv().addReporter(prettyReporter);
+    },
+    /* if using isSharded option see below */
+    beforeLaunch() {
+        prettyReporter.startReporter();
     }
 };
 ```
@@ -51,6 +55,7 @@ module.exports = {
 | writeReportEachSpec   | Boolean | true    | writes the report.html after each spec completes, this is recommended for long running tests |
 | showBrowser           | Boolean | true    | shows browser icon on the overview                        |
 | highlightSuspectLine  | Boolean | true    | highlight the "suspect line" in the dialog            |
+| isSharded             | Boolean | false   | turn on if using { shardOnSpec: true} option in protractor. See above for beforeLaunch hook that is needed as well. |
 
 
 ## More Screenshots

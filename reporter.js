@@ -9,7 +9,6 @@ const fileContents = fs.readFileSync(templatePath).toString();
 
 /** A jasmine reporter that produces an html report **/
 class Reporter {
-
     /**
      * @constructor
      * @param {Object} options - options for the reporter
@@ -35,21 +34,48 @@ class Reporter {
         }
 
         this.imageLocation = path.join(this.options.path, 'img');
+        this.dataLocation = path.join(this.options.path, 'data');
         this.destination = path.join(this.options.path, 'report.html');
+        this.dataFile = path.join(this.dataLocation, `${process.pid}.js`);
 
+        this.hasWrittenReportFile = false;
     }
 
-    jasmineStarted(suiteInfo) {
-        // clean up existing report
+    startReporter() {
         Reporter.cleanDirectory(this.options.path);
         Reporter.makeDirectoryIfNeeded(this.options.path);
         Reporter.makeDirectoryIfNeeded(this.imageLocation);
+        Reporter.makeDirectoryIfNeeded(this.dataLocation);
 
         this.timer.started = Reporter.nowString();
+    }
+
+    stopReporter() {
+        this.writeDataFile();
+
+        if (this.hasWrittenReportFile) {
+            return;
+        }
+
+        let resultContents = fs.readdirSync(this.dataLocation).map(file => {
+            return `<script src="data/${file}"></script>`;
+        }).join('\n');
+
+        let results = fileContents.replace('<!-- inject::scripts -->', resultContents);
+        fs.writeFileSync(this.destination, results, 'utf8');
+
+        this.hasWrittenReportFile = true;
+    }
+
+    jasmineStarted(suiteInfo) {
+
+        if (!this.options.isSharded) {
+            this.startReporter();
+        }
 
         afterEach((next) => {
-            this.currentSpec.stoped = Reporter.nowString();
-            this.currentSpec.duration = new Date(this.currentSpec.stoped) - new Date(this.currentSpec.started);
+            this.currentSpec.stopped = Reporter.nowString();
+            this.currentSpec.duration = new Date(this.currentSpec.stopped) - new Date(this.currentSpec.started);
             this.currentSpec.prefix = this.currentSpec.fullName.replace(this.currentSpec.description, '');
 
             browser.takeScreenshot()
@@ -83,8 +109,8 @@ class Reporter {
         this.sequence.push(this.currentSpec);
 
         // Handle screenshot saving
-        if (this.currentSpec.status !== "disabled"  && (this.currentSpec.status !== 'passed' || this.options.screenshotOnPassed)) {
-            this.currentSpec.screenshotPath = 'img/' + this.counts.specs + '.png';
+        if (this.currentSpec.status !== "disabled" && this.currentSpec.status !== "pending" && (this.currentSpec.status !== 'passed' || this.options.screenshotOnPassed)) {
+            this.currentSpec.screenshotPath = `img/${process.pid}-${this.counts.specs}.png`;
             this.writeImage(this.currentSpec.base64screenshot);
         }
 
@@ -113,16 +139,16 @@ class Reporter {
     };
 
     jasmineDone() {
-        this.timer.stoped = Reporter.nowString();
-        this.timer.duration = new Date(this.timer.stoped) - new Date(this.timer.started);
-        this.writeFile();
+        this.timer.stopped = Reporter.nowString();
+        this.timer.duration = new Date(this.timer.stopped) - new Date(this.timer.started);
+        this.stopReporter();
     };
 
     setOptions(options) {
         this.options = Object.assign(this.options, options);
     };
 
-    writeFile() {
+    writeDataFile() {
         let logEntry = {
             options: this.options,
             timer: this.timer,
@@ -130,8 +156,9 @@ class Reporter {
             sequence: this.sequence
         };
 
-        let results = fileContents.replace('\'<Results Replacement>\'', JSON.stringify(logEntry, null, 4));
-        fs.writeFileSync(this.destination, results, 'utf8');
+        let json = JSON.stringify(logEntry, null, !this.options.debugData ? null : 4);
+
+        fs.writeFileSync(this.dataFile, `RESULTS.push(${json});`, 'utf8');
     }
 
     writeImage(img) {

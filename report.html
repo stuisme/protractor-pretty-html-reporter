@@ -164,11 +164,16 @@
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-messages.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-material/1.1.3/angular-material.js"></script>
+<script>
+    var RESULTS = [];
+</script>
+
+<!-- inject::scripts -->
 
 <script>
     angular.module('jasmineResults', ['ngMaterial']).config(function ($mdThemingProvider) {
         $mdThemingProvider.theme('default').primaryPalette('green').accentPalette('yellow');
-    }).controller('ResultsCtrl', function ($scope, $mdDialog, results) {
+    }).controller('ResultsCtrl', function ($scope, $mdDialog, RESULTS) {
 
         var classes = {
             'passed': 'md-primary',
@@ -176,7 +181,25 @@
             'failed': 'md-warn'
         };
 
-        $scope.results = results;
+        $scope.results = RESULTS.reduce(function(combined, result) {
+
+          combined.options = combined.options || result.options;
+          combined.timer = combined.timer || result.timer;
+
+          combined.sequence = combined.sequence.concat(result.sequence);
+
+          // sum the counts
+          Object.keys(result.counts).forEach(function(key) {
+            combined.counts[key] = (combined.counts[key] || 0) + result.counts[key];
+          });
+
+          return combined;
+        }, {
+          options: null,
+          timer: null,
+          counts: {},
+          sequence: []
+        });
 
         $scope.showDetail = function (item) {
             $scope.activeItem = item;
@@ -198,7 +221,7 @@
             return classes[item.status];
         };
 
-    }).constant('results', '<Results Replacement>');
+    }).constant('RESULTS', RESULTS);
 </script>
 
 </body>
