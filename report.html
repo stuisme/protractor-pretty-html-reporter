@@ -191,7 +191,7 @@
         };
 
         $scope.getBrowserClass = function (item) {
-            return 'fa-' + item.browserName;
+            return 'fa-' + item.browserName.replace(' ', '-');
         };
 
         $scope.getCss = function (item) {

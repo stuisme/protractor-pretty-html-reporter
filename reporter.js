@@ -18,6 +18,7 @@ class Reporter {
      * @param {Boolean} options.writeReportEachSpec=true - write the report between each spec, recommended for long running tests
      * @param {Boolean} options.showBrowser=true - show browser icon on the overview
      * @param {Boolean} options.highlightSuspectLine=true - highlight the "suspect line" in the detail dialog
+     * @param {Boolean} options.isSharded=false - use if using shardOnSpec of multiCapabilities options in protractor
      */
     constructor(options) {
         this.sequence = [];
