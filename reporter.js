@@ -158,7 +158,7 @@ class Reporter {
 
         let json = JSON.stringify(logEntry, null, !this.options.debugData ? null : 4);
 
-        fs.writeFileSync(this.dataFile, `RESULTS.push(${json});`, 'utf8');
+        fs.writeFileSync(this.dataFile, `window.RESULTS.push(${json});`, 'utf8');
     }
 
     writeImage(img) {
