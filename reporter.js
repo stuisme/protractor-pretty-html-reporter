@@ -239,17 +239,16 @@ class Reporter {
                         } else {
                             allData.sequence.forEach(function(allDataOneSequence){
                                 currentData.sequence.forEach(function(currentDataOneSequence){
-                                    if(allDataOneSequence.description === currentDataOneSequence.description){
-                                        allDataOneSequence.times ++ ;
-                                        if (allDataOneSequence.description === currentDataOneSequence.description) {
-                                            allDataOneSequence.times++;
-                                            if (allDataOneSequence.allSpecs == null) {
-                                                allDataOneSequence.allSpecs = [allDataOneSequence , currentDataOneSequence]
-                                                // allDataOneSequence.allSpecs = [currentDataOneSequence];
-                                            } else {
-                                                allDataOneSequence.allSpecs = allDataOneSequence.allSpecs.concat(currentDataOneSequence);
-                                            }
+                                    if(allDataOneSequence.description === currentDataOneSequence.description && allDataOneSequence.status != 'disabled'){
+                                        allDataOneSequence.times++;
+                                        if (allDataOneSequence.allSpecs == null) {
+                                            var obj = JSON.parse(JSON.stringify(allDataOneSequence));
+                                            allDataOneSequence.allSpecs = [obj , currentDataOneSequence]
+                                            // allDataOneSequence.allSpecs = [currentDataOneSequence];
+                                        } else {
+                                            allDataOneSequence.allSpecs = allDataOneSequence.allSpecs.concat(currentDataOneSequence);
                                         }
+
                                     }
                                 });
                             });
