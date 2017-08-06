@@ -206,6 +206,72 @@ class Reporter {
     static nowString() {
         return (new Date()).toISOString();
     }
+
+    consolidateReports(){
+        console.log('sobirav se podatoci')
+        var fs = require('fs');
+        var output = null;
+        var times = 0;
+        if (!fs.existsSync('report/data')) {
+            fs.mkdirSync('report/data');
+        }
+        if (!fs.existsSync('report/img')) {
+            fs.mkdirSync('report/img');
+        }
+        var data;
+        var img;
+        var allData = null;
+        var firstjs = null;
+        var allSequences = null;
+
+        fs.readdirSync('report/').forEach(function (file) {
+
+            if ( file.includes('pretty')) {
+
+                if (!(fs.lstatSync('report/' + file + '/report.html').isDirectory())) {
+                    fs.readdirSync('report/' + file + '/data').forEach(function (filejs) {
+                        var currentDataBuffer = fs.readFileSync('report/' + file + '/data/' + filejs, 'utf8');
+                        var currentData = JSON.parse(currentDataBuffer.slice(20, (currentDataBuffer.length - 2)));
+
+                        if (allData == null) {
+                            allData = currentData;
+                            firstjs = filejs;
+                        } else {
+                            allData.sequence.forEach(function(allDataOneSequence){
+                                currentData.sequence.forEach(function(currentDataOneSequence){
+                                    if(allDataOneSequence.description === currentDataOneSequence.description){
+                                        allDataOneSequence.times ++ ;
+                                        if (allDataOneSequence.description === currentDataOneSequence.description) {
+                                            allDataOneSequence.times++;
+                                            if (allDataOneSequence.allSpecs == null) {
+                                                allDataOneSequence.allSpecs = [allDataOneSequence , currentDataOneSequence]
+                                                // allDataOneSequence.allSpecs = [currentDataOneSequence];
+                                            } else {
+                                                allDataOneSequence.allSpecs = allDataOneSequence.allSpecs.concat(currentDataOneSequence);
+                                            }
+                                        }
+                                    }
+                                });
+                            });
+                            // allData.sequence = allData.sequence.concat(currentData.sequence);
+                        }
+                    });
+                    fs.readdirSync('report/' + file + '/img').forEach(function (img) {
+                        fs.createReadStream('report/' + file + '/img/' + img, {encoding: "utf16le"}).pipe(fs.createWriteStream('report/img/' + img));
+                        // fs.
+                    });
+                }
+                if (output == null) {
+                    output = fs.readFileSync('report/' + file + '/report.html');
+                }
+                times++;
+            }
+        });
+        fs.writeFileSync('report/ConsolidatedReport.html', output, 'utf8');
+        var dataInString = 'window.RESULTS.push(' + JSON.stringify(allData) + ');'
+        fs.writeFileSync('report/data/' + firstjs, dataInString, 'utf8');
+        //should take another report.html template
+    }
 }
 
 module.exports = Reporter;
