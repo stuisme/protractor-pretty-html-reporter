@@ -207,7 +207,7 @@ class Reporter {
         return (new Date()).toISOString();
     }
 
-    consolidateReports(){
+    consolidateReports() {
         console.log('sobirav se podatoci')
         var fs = require('fs');
         var output = null;
@@ -226,7 +226,7 @@ class Reporter {
 
         fs.readdirSync('report/').forEach(function (file) {
 
-            if ( file.includes('pretty')) {
+            if (file.includes('pretty')) {
 
                 if (!(fs.lstatSync('report/' + file + '/report.html').isDirectory())) {
                     fs.readdirSync('report/' + file + '/data').forEach(function (filejs) {
@@ -236,23 +236,35 @@ class Reporter {
                         if (allData == null) {
                             allData = currentData;
                             firstjs = filejs;
+                            allData.sequence.forEach( data => {
+                                data.times = 1 ;
+                            data.successTimes = 0 ;
+                            if (data.status === 'passed') {
+                                data.successTimes ++ ;
+                            }
+                            var deepCopySpecs = JSON.parse(JSON.stringify(data));
+                            data.allSpecs = [deepCopySpecs];
+                        });
                         } else {
-                            allData.sequence.forEach(function(allDataOneSequence){
-                                currentData.sequence.forEach(function(currentDataOneSequence){
-                                    if(allDataOneSequence.description === currentDataOneSequence.description && allDataOneSequence.status != 'disabled'){
-                                        allDataOneSequence.times++;
-                                        if (allDataOneSequence.allSpecs == null) {
-                                            var obj = JSON.parse(JSON.stringify(allDataOneSequence));
-                                            allDataOneSequence.allSpecs = [obj , currentDataOneSequence]
-                                            // allDataOneSequence.allSpecs = [currentDataOneSequence];
-                                        } else {
-                                            allDataOneSequence.allSpecs = allDataOneSequence.allSpecs.concat(currentDataOneSequence);
-                                        }
+                            allData.sequence.forEach(function (allDataOneSequence) {
 
+                                currentData.sequence.forEach(function (currentDataOneSequence) {
+
+                                    if (allDataOneSequence.description === currentDataOneSequence.description && allDataOneSequence.status != 'disabled') {
+
+                                        allDataOneSequence.times++;
+                                        if (currentDataOneSequence.status === 'passed') {
+                                            allDataOneSequence.successTimes ++ ;
+                                            allDataOneSequence.status = 'passed';
+                                        }
+                                        allDataOneSequence.allSpecs = allDataOneSequence.allSpecs.concat(currentDataOneSequence);
+                                        return;
                                     }
+
                                 });
+
                             });
-                            // allData.sequence = allData.sequence.concat(currentData.sequence);
+
                         }
                     });
                     fs.readdirSync('report/' + file + '/img').forEach(function (img) {

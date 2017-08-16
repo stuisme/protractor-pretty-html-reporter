@@ -44,41 +44,41 @@
         }
 
         .modal {
-          display: none; /* Hidden by default */
-          position: fixed; /* Stay in place */
-          z-index: 1; /* Sit on top */
-          padding-top: 100px; /* Location of the box */
-          left: 0;
-          top: 0;
-          width: 100%; /* Full width */
-          height: 100%; /* Full height */
-          overflow: auto; /* Enable scroll if needed */
-          background-color: rgb(0,0,0); /* Fallback color */
-          background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            padding-top: 100px; /* Location of the box */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
         }
 
         /* Modal Content */
         .modal-content {
-          background-color: #fefefe;
-          margin: auto;
-          padding: 20px;
-          border: 1px solid #888;
-          width: 80%;
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
         }
 
         /* The Close Button */
         .close {
-          color: #aaaaaa;
-          float: right;
-          font-size: 28px;
-          font-weight: bold;
+            color: #aaaaaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
         }
 
         .close:hover,
         .close:focus {
-          color: #000;
-          text-decoration: none;
-          cursor: pointer;
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -106,53 +106,90 @@
     <md-content flex>
         <md-list>
             <md-list-item ng-class="result.status" ng-repeat="result in results.sequence" >
-              <!-- Trigger/Open The Modal -->
-              <button id="{{result.id}}" onclick="displayModal(this)" >Open Modal</button>
+                <!-- Trigger/Open The Modal -->
+                <!--<button id="{{result.id}}" onclick="displayModal(this)" >Open Modal</button>-->
 
-              <!-- The Modal -->
-              <div id="modal-{{result.id}}" class="modal">
-
-                <!-- Modal content -->
-                <div class="modal-content">
-                  <span id="{{result.id}}" class="close" onclick="closeModal(this)" >&times;</span>
-                  <p>Some text in the Modal..</p>
-                  <md-list-item ng-class="result.status" ng-repeat="res in result.allSpecs" >
-                  <div layout="row" flex layout-padding>
+                <div id="{{result.id}}" onclick="displayModal(this)" layout="row" flex layout-padding>
                     <div flex="none">
-                      <div class="status" ng-click="showDetail(res)">{{ res.status }}</div>
+                        <div class="status">{{ result.status }}</div>
+                    </div>
+                    <div flex="none">
+                        <div class="">{{ result.successTimes }}/{{ result.times }}</div>
                     </div>
                     <div ng-if="results.options.showBrowser" flex="none">
-                      <i ng-class="getBrowserClass(res)" class="fa"></i>
+                        <i ng-class="getBrowserClass(result)" class="fa"></i>
                     </div>
                     <div flex>
-                      <span>{{ res.prefix }}</span><strong>{{ res.description }}</strong>
-                      <div ng-if="res.pendingReason != ''">
-                        <small>{{ res.pendingReason }}</small>
-                      </div>
-                      <div ng-repeat="failure in res.failedExpectations">
-                        <small>{{ failure.message }}</small>
-                      </div>
-                      <!--<div ng-if="result.suspectLine">-->
-                      <!--<small>{{result.suspectLine}}</small>-->
-                      <!--</div>-->
+                        <span>{{ result.prefix }}</span><strong>{{ result.description }}</strong>
+                        <div ng-if="result.pendingReason != ''">
+                            <small>{{ result.pendingReason }}</small>
+                        </div>
+                        <div ng-repeat="failure in result.failedExpectations">
+                            <small>{{ failure.message }}</small>
+                        </div>
+                        <!--<div ng-if="result.suspectLine">-->
+                        <!--<small>{{result.suspectLine}}</small>-->
+                        <!--</div>-->
                     </div>
                     <div flex="none" style="width: 80px; text-align:right;">
-                      <small>{{ res.duration / 1000 }} s</small>
+                        <small>{{ result.duration / 1000 }} s</small>
                     </div>
                     <div flex="none" style="width: 150px">
-                      <img width="100%" ng-if="res.screenshotPath" ng-src="{{res.screenshotPath}}"/>
+                        <img width="100%" ng-if="result.screenshotPath" ng-src="{{result.screenshotPath}}"/>
                     </div>
-                  </div>
-                 </md-list>
                 </div>
 
-              </div>
+
+                <!-- The Modal -->
+                <div id="modal-{{result.id}}" class="modal">
+
+                    <!-- Modal content -->
+                    <div class="modal-content">
+                        <span id="{{result.id}}" class="close" onclick="closeModal(this)" >&times;</span>
+                        <p>Some text in the Modal..</p>
+                        <md-list-item ng-class="result.status" ng-repeat="res in result.allSpecs" >
+                            <div layout="row" flex layout-padding>
+                                <div flex="none">
+                                    <div class="status" ng-click="showDetail(res)">{{ res.status }}</div>
+                                </div>
+                                <div ng-if="results.options.showBrowser" flex="none">
+                                    <i ng-class="getBrowserClass(res)" class="fa"></i>
+                                </div>
+                                <div flex>
+                                    <span>{{ res.prefix }}</span><strong>{{ res.description }}</strong>
+                                    <div ng-if="res.pendingReason != ''">
+                                        <small>{{ res.pendingReason }}</small>
+                                    </div>
+                                    <div ng-repeat="failure in res.failedExpectations">
+                                        <small>{{ failure.message }}</small>
+                                    </div>
+                                    <!--<div ng-if="result.suspectLine">-->
+                                    <!--<small>{{result.suspectLine}}</small>-->
+                                    <!--</div>-->
+                                </div>
+                                <div flex="none" style="width: 80px; text-align:right;">
+                                    <small>{{ res.duration / 1000 }} s</small>
+                                </div>
+                                <div flex="none" style="width: 150px">
+                                    <img width="100%" ng-if="res.screenshotPath" ng-src="{{res.screenshotPath}}"/>
+                                </div>
+                            </div>
+                        </md-list-item>
+                    </div>
+                </div>
 
 
-                <md-divider inset></md-divider>
             </md-list-item>
         </md-list>
     </md-content>
+</div>
+
+
+
+<md-divider inset></md-divider>
+</md-list-item>
+</md-list>
+</md-content>
 </div>
 
 <!-- Dialog template -->
@@ -223,19 +260,19 @@
     var RESULTS = [];
 </script>
 
-<script src="data/18660.js"></script>
+<script src="data/2480.js"></script>
 
 <script>
-  function displayModal(result){
+    function displayModal(result){
 //    alert('a');
 //    alert(result.getAttribute('id'));
-    document.getElementById('modal-'+ result.getAttribute('id')).style.display = "block";
-  };
-  function closeModal(result){
+        document.getElementById('modal-'+ result.getAttribute('id')).style.display = "block";
+    };
+    function closeModal(result){
 //    alert('a');
 //    alert(result.getAttribute('id'));
-    document.getElementById('modal-'+ result.getAttribute('id')).style.display = "none";
-  };
+        document.getElementById('modal-'+ result.getAttribute('id')).style.display = "none";
+    };
     angular.module('jasmineResults', ['ngMaterial']).config(function ($mdThemingProvider) {
         $mdThemingProvider.theme('default').primaryPalette('green').accentPalette('yellow');
     }).controller('ResultsCtrl', function ($scope, $mdDialog, RESULTS) {
@@ -248,22 +285,22 @@
 
         $scope.results = RESULTS.reduce(function(combined, result) {
 
-          combined.options = combined.options || result.options;
-          combined.timer = combined.timer || result.timer;
+            combined.options = combined.options || result.options;
+            combined.timer = combined.timer || result.timer;
 
-          combined.sequence = combined.sequence.concat(result.sequence);
+            combined.sequence = combined.sequence.concat(result.sequence);
 
-          // sum the counts
-          Object.keys(result.counts).forEach(function(key) {
-            combined.counts[key] = (combined.counts[key] || 0) + result.counts[key];
-          });
+            // sum the counts
+            Object.keys(result.counts).forEach(function(key) {
+                combined.counts[key] = (combined.counts[key] || 0) + result.counts[key];
+            });
 
-          return combined;
+            return combined;
         }, {
-          options: null,
-          timer: null,
-          counts: {},
-          sequence: []
+            options: null,
+            timer: null,
+            counts: {},
+            sequence: []
         });
 
         $scope.showDetail = function (item) {
