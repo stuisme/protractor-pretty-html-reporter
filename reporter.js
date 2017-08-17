@@ -207,7 +207,7 @@ class Reporter {
         return (new Date()).toISOString();
     }
 
-    consolidateReports() {
+    consolidateReports(){
         console.log('sobirav se podatoci')
         var fs = require('fs');
         var output = null;
@@ -236,16 +236,22 @@ class Reporter {
                         if (allData == null) {
                             allData = currentData;
                             firstjs = filejs;
-                            allData.sequence.forEach( data => {
-                                data.times = 1 ;
-                            data.successTimes = 0 ;
+                            allData.sequence.forEach(data => {
+                                data.times = 1;
+                            data.successTimes = 0;
                             if (data.status === 'passed') {
-                                data.successTimes ++ ;
+                                data.successTimes++;
                             }
                             var deepCopySpecs = JSON.parse(JSON.stringify(data));
                             data.allSpecs = [deepCopySpecs];
                         });
                         } else {
+                            allData.timer.duration += currentData.timer.duration;
+                            allData.counts.specs += currentData.counts.specs;
+                            allData.counts.passed += currentData.counts.passed;
+                            allData.counts.failed += currentData.counts.failed;
+                            allData.counts.pending += currentData.counts.pending;
+
                             allData.sequence.forEach(function (allDataOneSequence) {
 
                                 currentData.sequence.forEach(function (currentDataOneSequence) {
@@ -254,7 +260,7 @@ class Reporter {
 
                                         allDataOneSequence.times++;
                                         if (currentDataOneSequence.status === 'passed') {
-                                            allDataOneSequence.successTimes ++ ;
+                                            allDataOneSequence.successTimes++;
                                             allDataOneSequence.status = 'passed';
                                         }
                                         allDataOneSequence.allSpecs = allDataOneSequence.allSpecs.concat(currentDataOneSequence);
@@ -268,9 +274,28 @@ class Reporter {
                         }
                     });
                     fs.readdirSync('report/' + file + '/img').forEach(function (img) {
-                        fs.createReadStream('report/' + file + '/img/' + img, {encoding: "utf16le"}).pipe(fs.createWriteStream('report/img/' + img));
-                        // fs.
+                        //fs.createReadStream('report/' + file + '/img/' + img, {encoding: "utf16le"}).pipe(fs.createWriteStream('report/img/' + img));
+                        var readStream = fs.createReadStream('report/' + file + '/img/' + img);
+                        readStream.once('error', function (err) {
+                            console.log(err);
+                        });
+
+                        readStream.once('end', function(){
+                            console.log('done copying');
+                        });
+                        readStream.pipe(fs.createWriteStream('report/img/' + img));
+
+                        // fs. FIX IMAGES copying
+
                     });
+                    // fs.readFile('report/' + file + '/img').forEach(function (err, data) {
+                    //   if (err) throw err;
+                    //   fs.writeFile('folder2/image.png', data, function (err) {
+                    //     if (err) throw err;
+                    //     console.log('It\'s saved!');
+                    //   });
+                    // });
+
                 }
                 if (output == null) {
                     output = fs.readFileSync('report/' + file + '/report.html');

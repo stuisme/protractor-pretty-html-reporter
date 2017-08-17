@@ -26,6 +26,30 @@
             background-color: rgb(255, 255, 0);
         }
 
+        .failed-class {
+            background-color: rgb(255, 87, 34);
+            width: 85px;
+            padding: 7px;
+            border-radius: 3px;
+            text-align: center;
+        }
+
+        .passed-class {
+            background-color: rgb(76, 175, 80);
+            width: 85px;
+            padding: 7px;
+            border-radius: 3px;
+            text-align: center;
+        }
+
+        .pending2 {
+            background-color: rgb(255, 255, 0);
+            width: 85px;
+            padding: 7px;
+            border-radius: 3px;
+            text-align: center;
+        }
+
         /* stack traces */
         pre {
             margin:0;
@@ -85,7 +109,7 @@
 <body ng-controller="ResultsCtrl">
 
 <div ng-cloak layout="column">
-    <md-toolbar ng-class="{'md-warn': results.counts.failed}">
+    <md-toolbar ng-class="{'md-warn': calculateStatus(results)}">
         <div class="md-toolbar-tools">
             <h2 flex md-truncate>Results <small ng-if="results.timer.duration"> - executed in {{ results.timer.duration / 1000 }} seconds</small></h2>
             <h6>
@@ -124,18 +148,21 @@
                         <div ng-if="result.pendingReason != ''">
                             <small>{{ result.pendingReason }}</small>
                         </div>
-                        <div ng-repeat="failure in result.failedExpectations">
-                            <small>{{ failure.message }}</small>
-                        </div>
+                        <!--<div ng-repeat="failure in result.failedExpectations">-->
+                        <!--<small>{{ failure.message }}</small>-->
+                        <!--</div>-->
                         <!--<div ng-if="result.suspectLine">-->
                         <!--<small>{{result.suspectLine}}</small>-->
                         <!--</div>-->
                     </div>
                     <div flex="none" style="width: 80px; text-align:right;">
-                        <small>{{ result.duration / 1000 }} s</small>
+                        <small>{{ result.duration }}</small>
                     </div>
-                    <div flex="none" style="width: 150px">
-                        <img width="100%" ng-if="result.screenshotPath" ng-src="{{result.screenshotPath}}"/>
+                    <!--<div flex="none" style="width: 150px">-->
+                    <!--<img width="100%" ng-if="result.screenshotPath" ng-src="{{result.screenshotPath}}"/>-->
+                    <!--</div>-->
+                    <div flex="none">
+                        <div class="">{{ result.successTimes / result.times * 100 }} %</div>
                     </div>
                 </div>
 
@@ -146,11 +173,10 @@
                     <!-- Modal content -->
                     <div class="modal-content">
                         <span id="{{result.id}}" class="close" onclick="closeModal(this)" >&times;</span>
-                        <p>Some text in the Modal..</p>
-                        <md-list-item ng-class="result.status" ng-repeat="res in result.allSpecs" >
+                        <md-list-item ng-class="result.status" ng-click="showDetail(res)" ng-repeat="res in result.allSpecs" >
                             <div layout="row" flex layout-padding>
                                 <div flex="none">
-                                    <div class="status" ng-click="showDetail(res)">{{ res.status }}</div>
+                                    <div ng-class="(res.status === 'passed') ? 'passed-class' : 'failed-class'" >{{ res.status }}</div>
                                 </div>
                                 <div ng-if="results.options.showBrowser" flex="none">
                                     <i ng-class="getBrowserClass(res)" class="fa"></i>
@@ -168,7 +194,7 @@
                                     <!--</div>-->
                                 </div>
                                 <div flex="none" style="width: 80px; text-align:right;">
-                                    <small>{{ res.duration / 1000 }} s</small>
+                                    <small>{{ res.duration}}</small>
                                 </div>
                                 <div flex="none" style="width: 150px">
                                     <img width="100%" ng-if="res.screenshotPath" ng-src="{{res.screenshotPath}}"/>
@@ -177,8 +203,6 @@
                         </md-list-item>
                     </div>
                 </div>
-
-
             </md-list-item>
         </md-list>
     </md-content>
@@ -260,7 +284,7 @@
     var RESULTS = [];
 </script>
 
-<script src="data/2480.js"></script>
+<script src="data/1673.js"></script>
 
 <script>
     function displayModal(result){
@@ -313,6 +337,14 @@
                 parent: angular.element(document.body),
                 clickOutsideToClose: true
             })
+        };
+
+        $scope.calculateStatus = function(item){
+            var status = 0;
+            item.sequence.forEach(function(one) {
+                if(one.status === "failed") status = 1;
+            });
+            return status;
         };
 
         $scope.getBrowserClass = function (item) {
