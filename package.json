@@ -3,7 +3,7 @@
   "description": "an easy to use html page for looking at protractor test results with option to combine results when reruning failed tests",
   "author": "vdimikj",
   "main": "index.js",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "keywords": [
     "jasmine",
     "protractor",
