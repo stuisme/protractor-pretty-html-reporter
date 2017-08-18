@@ -1,3 +1,7 @@
+For of protractor pretty html reporter with another feature of combining reports of several executions when using flake
+
+All credit goes to the owner of protractor pretty html reporter
+
 # protractor pretty html reporter
 [![Build Status](https://travis-ci.org/stuisme/protractor-pretty-html-reporter.svg?branch=master)](https://travis-ci.org/stuisme/protractor-pretty-html-reporter)
 [![Latest Version](https://img.shields.io/github/tag/stuisme/protractor-pretty-html-reporter.svg)](https://github.com/stuisme/protractor-pretty-html-reporter)

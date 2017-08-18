@@ -288,24 +288,17 @@ class Reporter {
                         // fs. FIX IMAGES copying
 
                     });
-                    // fs.readFile('report/' + file + '/img').forEach(function (err, data) {
-                    //   if (err) throw err;
-                    //   fs.writeFile('folder2/image.png', data, function (err) {
-                    //     if (err) throw err;
-                    //     console.log('It\'s saved!');
-                    //   });
-                    // });
-
                 }
                 if (output == null) {
-                    output = fs.readFileSync('report/' + file + '/report.html');
+                    // output = fs.readFileSync('report/' + file + '/report.html');
+                    output = fs.readFileSync('node_modules/macedonia-protractor-reporter/consolidatedreport.html');
                 }
                 times++;
             }
         });
         fs.writeFileSync('report/ConsolidatedReport.html', output, 'utf8');
-        var dataInString = 'window.RESULTS.push(' + JSON.stringify(allData) + ');'
-        fs.writeFileSync('report/data/' + firstjs, dataInString, 'utf8');
+        var dataInString = 'window.RESULTS.push(' + JSON.stringify(allData) + ');';
+        fs.writeFileSync('report/data/1.js', dataInString, 'utf8');
         //should take another report.html template
     }
 }

@@ -1,22 +1,27 @@
 {
-  "name": "protractor-pretty-html-reporter",
-  "description": "an easy to use html page for looking at protractor test results",
-  "author": "stuisme",
+  "name": "macedonia-protractor-reporter",
+  "description": "an easy to use html page for looking at protractor test results with option to combine results when reruning failed tests",
+  "author": "vdimikj",
   "main": "index.js",
-  "version": "0.0.14",
+  "version": "0.0.1",
   "keywords": [
     "jasmine",
     "protractor",
     "pretty",
     "html",
-    "reporter"
+    "reporter",
+    "macedonia",
+    "flake",
+    "consolidate",
+    "combine",
+    "results"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/stuisme/protractor-pretty-html-reporter.git"
+    "url": "https://github.com/vdimikj/macedonia-protractor-reporter.git"
   },
   "issues": {
-    "url": "https://github.com/stuisme/protractor-pretty-html-reporter/issues"
+    "url": "https://github.com/vdimikj/macedonia-protractor-reporter/issues"
   },
   "peerDependencies": {
     "jasmine": "^2.4.1"
