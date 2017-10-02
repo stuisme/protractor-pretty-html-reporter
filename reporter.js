@@ -208,15 +208,26 @@ class Reporter {
     }
 
     consolidateReports(){
-        console.log('sobirav se podatoci')
+        // console.log('sobirav se podatoci')
+
+        var parts = this.options.path.split('/');
+        var targetDirectory = this.options.path.split(parts[parts.length-1])[0];
+        var reporterDirectory = parts[parts.length-1];
+
         var fs = require('fs');
         var output = null;
         var times = 0;
-        if (!fs.existsSync('report/data')) {
-            fs.mkdirSync('report/data');
+        // if (!fs.existsSync('report/data')) {
+        //     fs.mkdirSync('report/data');
+        // }
+        // if (!fs.existsSync('report/img')) {
+        //     fs.mkdirSync('report/img');
+        // }
+        if (!fs.existsSync( targetDirectory + 'data')) {
+            fs.mkdirSync(targetDirectory + 'data');
         }
-        if (!fs.existsSync('report/img')) {
-            fs.mkdirSync('report/img');
+        if (!fs.existsSync(targetDirectory + 'img')) {
+            fs.mkdirSync(targetDirectory + 'img');
         }
         var data;
         var img;
@@ -224,7 +235,7 @@ class Reporter {
         var firstjs = null;
         var allSequences = null;
 
-        fs.readdirSync('report/').forEach(function (file) {
+        fs.readdirSync(targetDirectory).forEach(function (file) {
 
             if (file.includes('pretty')) {
 
