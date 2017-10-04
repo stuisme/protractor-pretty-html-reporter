@@ -212,7 +212,7 @@ class Reporter {
 
         var parts = this.options.path.split('/');
         var targetDirectory = this.options.path.split(parts[parts.length-1])[0];
-        var reporterDirectory = parts[parts.length-1];
+        var reporterDirectory = parts[parts.length-1].split(/[^a-zA-Z]+/g)[0];
 
         var fs = require('fs');
         var output = null;
@@ -235,13 +235,18 @@ class Reporter {
         var firstjs = null;
         var allSequences = null;
 
+        //
+        // targetDirectory = 'report/';
+        // reporterDirectory = 'pretty';
+        //
+
         fs.readdirSync(targetDirectory).forEach(function (file) {
 
-            if (file.includes('pretty')) {
+            if (file.includes(reporterDirectory)) {
 
-                if (!(fs.lstatSync('report/' + file + '/report.html').isDirectory())) {
-                    fs.readdirSync('report/' + file + '/data').forEach(function (filejs) {
-                        var currentDataBuffer = fs.readFileSync('report/' + file + '/data/' + filejs, 'utf8');
+                if (!(fs.lstatSync(targetDirectory + file + '/report.html').isDirectory())) {
+                    fs.readdirSync(targetDirectory + file + '/data').forEach(function (filejs) {
+                        var currentDataBuffer = fs.readFileSync(targetDirectory + file + '/data/' + filejs, 'utf8');
                         var currentData = JSON.parse(currentDataBuffer.slice(20, (currentDataBuffer.length - 2)));
 
                         if (allData == null) {
@@ -284,9 +289,9 @@ class Reporter {
 
                         }
                     });
-                    fs.readdirSync('report/' + file + '/img').forEach(function (img) {
+                    fs.readdirSync(targetDirectory + file + '/img').forEach(function (img) {
                         //fs.createReadStream('report/' + file + '/img/' + img, {encoding: "utf16le"}).pipe(fs.createWriteStream('report/img/' + img));
-                        var readStream = fs.createReadStream('report/' + file + '/img/' + img);
+                        var readStream = fs.createReadStream(targetDirectory + file + '/img/' + img);
                         readStream.once('error', function (err) {
                             console.log(err);
                         });
@@ -294,7 +299,7 @@ class Reporter {
                         readStream.once('end', function(){
                             console.log('done copying');
                         });
-                        readStream.pipe(fs.createWriteStream('report/img/' + img));
+                        readStream.pipe(fs.createWriteStream(targetDirectory +'img/' + img));
 
                         // fs. FIX IMAGES copying
 
@@ -307,9 +312,9 @@ class Reporter {
                 times++;
             }
         });
-        fs.writeFileSync('report/ConsolidatedReport.html', output, 'utf8');
+        fs.writeFileSync(targetDirectory +'ConsolidatedReport.html', output, 'utf8');
         var dataInString = 'window.RESULTS.push(' + JSON.stringify(allData) + ');';
-        fs.writeFileSync('report/data/1.js', dataInString, 'utf8');
+        fs.writeFileSync(targetDirectory + 'data/1.js', dataInString, 'utf8');
         //should take another report.html template
     }
 }
