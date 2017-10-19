@@ -18,7 +18,7 @@ class Reporter {
      * @param {Boolean} options.showBrowser=true - show browser icon on the overview
      * @param {Boolean} options.highlightSuspectLine=true - highlight the "suspect line" in the detail dialog
      * @param {Boolean} options.isSharded=false - use if using shardOnSpec of multiCapabilities options in protractor
-     * @param (Object} options.driver=null - a webdriver instance, will use the global browser if this value is not set
+     * @param {Object} options.driver=null - a webdriver instance, will use the global browser if this value is not set
      */
     constructor(options) {
         this.sequence = [];
