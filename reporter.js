@@ -18,6 +18,7 @@ class Reporter {
      * @param {Boolean} options.showBrowser=true - show browser icon on the overview
      * @param {Boolean} options.highlightSuspectLine=true - highlight the "suspect line" in the detail dialog
      * @param {Boolean} options.isSharded=false - use if using shardOnSpec of multiCapabilities options in protractor
+     * @param (Object} options.driver=null - a webdriver instance, will use the global browser if this value is not set
      */
     constructor(options) {
         this.sequence = [];
@@ -78,14 +79,16 @@ class Reporter {
             this.currentSpec.duration = new Date(this.currentSpec.stopped) - new Date(this.currentSpec.started);
             this.currentSpec.prefix = this.currentSpec.fullName.replace(this.currentSpec.description, '');
 
-            browser.takeScreenshot()
+            this.driver = this.options.driver == null ? browser : this.options.driver;
+
+            this.driver.takeScreenshot()
                 .then((png) => {
                     this.currentSpec.base64screenshot = png;
                 })
-                .then(browser.getCapabilities)
+                .then(this.driver.getCapabilities)
                 .then((capabilities) => {
                     this.currentSpec.browserName = capabilities.get('browserName');
-                    return browser.manage().logs().get('browser');
+                    return this.driver.manage().logs().get('browser');
                 })
                 .then((browserLogs) => {
                     this.currentSpec.browserLogs = browserLogs;
@@ -172,7 +175,8 @@ class Reporter {
             screenshotOnPassed: false,
             writeReportEachSpec: true,
             showBrowser: true,
-            highlightSuspectLine: true
+            highlightSuspectLine: true,
+            driver: null
         };
     }
 
