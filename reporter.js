@@ -207,38 +207,25 @@ class Reporter {
         return (new Date()).toISOString();
     }
 
-    consolidateReports(){
-        // console.log('sobirav se podatoci')
+    consolidateReports() {
+        let parts = this.options.path.split('/');
+        let targetDirectory = this.options.path.split(parts[parts.length - 1])[0];
+        let reporterDirectory = parts[parts.length - 1].split(/[^a-zA-Z]+/g)[0];
+        let fs = require('fs');
+        let output = null;
+        let times = 0;
+        let data;
+        let img;
+        let allData = null;
+        let firstjs = null;
+        let allSequences = null;
 
-        var parts = this.options.path.split('/');
-        var targetDirectory = this.options.path.split(parts[parts.length-1])[0];
-        var reporterDirectory = parts[parts.length-1].split(/[^a-zA-Z]+/g)[0];
-
-        var fs = require('fs');
-        var output = null;
-        var times = 0;
-        // if (!fs.existsSync('report/data')) {
-        //     fs.mkdirSync('report/data');
-        // }
-        // if (!fs.existsSync('report/img')) {
-        //     fs.mkdirSync('report/img');
-        // }
-        if (!fs.existsSync( targetDirectory + 'data')) {
+        if (!fs.existsSync(targetDirectory + 'data')) {
             fs.mkdirSync(targetDirectory + 'data');
         }
         if (!fs.existsSync(targetDirectory + 'img')) {
             fs.mkdirSync(targetDirectory + 'img');
         }
-        var data;
-        var img;
-        var allData = null;
-        var firstjs = null;
-        var allSequences = null;
-
-        //
-        // targetDirectory = 'report/';
-        // reporterDirectory = 'pretty';
-        //
 
         fs.readdirSync(targetDirectory).forEach(function (file) {
 
@@ -246,21 +233,21 @@ class Reporter {
 
                 if (!(fs.lstatSync(targetDirectory + file + '/report.html').isDirectory())) {
                     fs.readdirSync(targetDirectory + file + '/data').forEach(function (filejs) {
-                        var currentDataBuffer = fs.readFileSync(targetDirectory + file + '/data/' + filejs, 'utf8');
-                        var currentData = JSON.parse(currentDataBuffer.slice(20, (currentDataBuffer.length - 2)));
+                        let currentDataBuffer = fs.readFileSync(targetDirectory + file + '/data/' + filejs, 'utf8');
+                        let currentData = JSON.parse(currentDataBuffer.slice(20, (currentDataBuffer.length - 2)));
 
                         if (allData == null) {
                             allData = currentData;
                             firstjs = filejs;
                             allData.sequence.forEach(data => {
                                 data.times = 1;
-                            data.successTimes = 0;
-                            if (data.status === 'passed') {
-                                data.successTimes++;
-                            }
-                            var deepCopySpecs = JSON.parse(JSON.stringify(data));
-                            data.allSpecs = [deepCopySpecs];
-                        });
+                                data.successTimes = 0;
+                                if (data.status === 'passed') {
+                                    data.successTimes++;
+                                }
+                                let deepCopySpecs = JSON.parse(JSON.stringify(data));
+                                data.allSpecs = [deepCopySpecs];
+                            });
                         } else {
                             allData.timer.duration += currentData.timer.duration;
                             allData.counts.specs += currentData.counts.specs;
@@ -269,9 +256,7 @@ class Reporter {
                             allData.counts.pending += currentData.counts.pending;
 
                             allData.sequence.forEach(function (allDataOneSequence) {
-
                                 currentData.sequence.forEach(function (currentDataOneSequence) {
-
                                     if (allDataOneSequence.description === currentDataOneSequence.description && allDataOneSequence.status != 'disabled') {
 
                                         allDataOneSequence.times++;
@@ -282,40 +267,24 @@ class Reporter {
                                         allDataOneSequence.allSpecs = allDataOneSequence.allSpecs.concat(currentDataOneSequence);
                                         return;
                                     }
-
                                 });
-
                             });
-
                         }
                     });
                     fs.readdirSync(targetDirectory + file + '/img').forEach(function (img) {
-                        //fs.createReadStream('report/' + file + '/img/' + img, {encoding: "utf16le"}).pipe(fs.createWriteStream('report/img/' + img));
-                        var readStream = fs.createReadStream(targetDirectory + file + '/img/' + img);
-                        readStream.once('error', function (err) {
-                            console.log(err);
-                        });
-
-                        readStream.once('end', function(){
-                            console.log('done copying');
-                        });
-                        readStream.pipe(fs.createWriteStream(targetDirectory +'img/' + img));
-
-                        // fs. FIX IMAGES copying
-
+                        let readStream = fs.createReadStream(targetDirectory + file + '/img/' + img);
+                        readStream.pipe(fs.createWriteStream(targetDirectory + 'img/' + img));
                     });
                 }
                 if (output == null) {
-                    // output = fs.readFileSync('report/' + file + '/report.html');
                     output = fs.readFileSync('node_modules/macedonia-protractor-reporter/consolidatedreport.html');
                 }
                 times++;
             }
         });
-        fs.writeFileSync(targetDirectory +'ConsolidatedReport.html', output, 'utf8');
+        fs.writeFileSync(targetDirectory + 'ConsolidatedReport.html', output, 'utf8');
         var dataInString = 'window.RESULTS.push(' + JSON.stringify(allData) + ');';
         fs.writeFileSync(targetDirectory + 'data/1.js', dataInString, 'utf8');
-        //should take another report.html template
     }
 }
 
